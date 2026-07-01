@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Route 7 → Yilan → Taoyuan</title>
+<style>
+  :root{
+    --asphalt:#17181A;
+    --asphalt-2:#212226;
+    --card:#26272B;
+    --line:#3A3B40;
+    --paint:#F2B705;
+    --paint-dim:#8A6A12;
+    --text:#F2F0E9;
+    --text-dim:#9C9C9E;
+    --go:#4CAF6D;
+    --warn:#E2574C;
+    --font-display: 'Oswald', 'Arial Narrow', system-ui, sans-serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--asphalt);
+    color:var(--text);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:60px;
+  }
+  header{
+    padding:28px 20px 20px;
+    background:linear-gradient(180deg,var(--asphalt-2),var(--asphalt));
+    border-bottom:3px dashed var(--paint-dim);
+  }
+  header .shield{
+    display:inline-block;
+    background:var(--paint);
+    color:#1a1a1a;
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:1px;
+    padding:3px 9px;
+    border-radius:3px;
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:26px;
+    letter-spacing:0.5px;
+    margin:0 0 6px;
+    text-transform:uppercase;
+  }
+  header p{ margin:0; color:var(--text-dim); font-size:14px; }
+
+  /* LIVE CONDITIONS */
+  .live{
+    padding:16px 20px;
+    background:#1E2A22;
+    border-bottom:1px solid var(--line);
+  }
+  .live-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
+  }
+  .live-head h2{
+    font-family:var(--font-display);
+    text-transform:uppercase;
+    font-size:14px;
+    margin:0;
+    color:var(--go);
+    letter-spacing:0.5px;
+  }
+  .live-head button{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--text-dim);
+    font-size:12px;
+    padding:5px 10px;
+    border-radius:14px;
+  }
+  .wx-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:8px;
+  }
+  .wx-card{
+    background:var(--card);
+    border-radius:9px;
+    padding:10px;
+    text-align:center;
+  }
+  .wx-card .loc{ font-size:11.5px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px; }
+  .wx-card .temp{ font-family:var(--font-display); font-size:22px; margin:3px 0; }
+  .wx-card .rain{ font-size:12px; }
+  .wx-card .rain.high{ color:var(--warn); font-weight:700; }
+  .wx-card .rain.mod{ color:var(--paint); font-weight:700; }
+  .wx-card .rain.low{ color:var(--go); }
+  .wx-note{ font-size:11px; color:var(--text-dim); margin-top:8px; }
+
+  .quicklinks{
+    display:flex;
+    gap:8px;
+    padding:14px 20px;
+    overflow-x:auto;
+    background:var(--asphalt-2);
+    border-bottom:1px solid var(--line);
+  }
+  .quicklinks a{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:var(--card);
+    color:var(--text);
+    text-decoration:none;
+    font-size:13px;
+    padding:9px 13px;
+    border-radius:20px;
+    border:1px solid var(--line);
+    white-space:nowrap;
+  }
+
+  /* CORRECTION BANNER */
+  .correction{
+    margin:16px 20px 0;
+    background:rgba(226,87,76,0.12);
+    border:1px solid var(--warn);
+    border-radius:10px;
+    padding:12px 14px;
+    font-size:13px;
+    line-height:1.5;
+  }
+  .correction b{ color:var(--warn); }
+
+  .day{ padding:26px 20px 6px; }
+  .day-head{ display:flex; align-items:baseline; gap:10px; margin-bottom:4px; }
+  .day-head .num{ font-family:var(--font-display); font-size:34px; color:var(--paint); line-height:1; }
+  .day-head .label{ font-family:var(--font-display); text-transform:uppercase; font-size:18px; letter-spacing:0.5px; }
+  .day-sub{ color:var(--text-dim); font-size:13px; margin:0 0 14px; }
+
+  .day-controls{
+    display:flex;
+    gap:8px;
+    margin-bottom:16px;
+  }
+  .day-controls button{
+    flex:1;
+    background:var(--card);
+    border:1px solid var(--line);
+    color:var(--text);
+    font-size:12.5px;
+    padding:8px;
+    border-radius:8px;
+  }
+  .day-controls button.reset{ color:var(--text-dim); }
+
+  .timeline{ position:relative; padding-left:22px; border-left:2px solid var(--line); }
+  .stop{ position:relative; margin-bottom:16px; }
+  .stop::before{
+    content:'';
+    position:absolute;
+    left:-27.5px;
+    top:6px;
+    width:11px;
+    height:11px;
+    border-radius:50%;
+    background:var(--asphalt);
+    border:2px solid var(--paint);
+  }
+  .stop.caution::before{ border-color:var(--warn); }
+  .stop.rest::before{ border-color:var(--go); }
+  .stop.done::before{ background:var(--go); border-color:var(--go); }
+  .stop.done .card{ opacity:0.55; }
+
+  .card{ background:var(--card); border:1px solid var(--line); border-radius:10px; padding:13px 14px; }
+  .card .time{ font-family:var(--font-display); font-size:12px; color:var(--paint); letter-spacing:0.5px; text-transform:uppercase; }
+  .card .time .delta{ margin-left:6px; font-size:11px; }
+  .card .time .delta.late{ color:var(--warn); }
+  .card .time .delta.early{ color:var(--go); }
+  .card h3{ margin:2px 0 6px; font-size:16px; font-weight:600; }
+  .card p{ margin:0 0 10px; font-size:13.5px; color:var(--text-dim); line-height:1.45; }
+  .card p:last-of-type{ margin-bottom:0; }
+  .row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:4px; }
+  .maplink{
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--paint); color:#1a1a1a; text-decoration:none;
+    font-weight:700; font-size:13px; padding:9px 14px; border-radius:8px;
+  }
+  .arrive-btn{
+    display:inline-flex; align-items:center; gap:6px;
+    background:transparent; color:var(--go); border:1px solid var(--go);
+    font-weight:700; font-size:13px; padding:9px 14px; border-radius:8px;
+  }
+  .arrive-btn:disabled{ opacity:0.5; border-color:var(--text-dim); color:var(--text-dim); }
+  .tag{ display:inline-block; font-size:10.5px; text-transform:uppercase; letter-spacing:0.5px; padding:2px 7px; border-radius:4px; margin-left:6px; vertical-align:middle; }
+  .tag.caution{ background:rgba(226,87,76,0.18); color:var(--warn); }
+  .tag.rest{ background:rgba(76,175,109,0.18); color:var(--go); }
+  .tag.deadline{ background:rgba(242,183,5,0.18); color:var(--paint); }
+  .tag.new{ background:rgba(76,175,109,0.25); color:var(--go); }
+
+  .notes{ padding:26px 20px 20px; background:var(--asphalt-2); border-top:1px solid var(--line); margin-top:10px; }
+  .notes h2{ font-family:var(--font-display); text-transform:uppercase; font-size:16px; margin:0 0 14px; color:var(--paint); }
+  .note-item{ display:flex; gap:10px; margin-bottom:12px; font-size:13.5px; line-height:1.5; color:var(--text); }
+  .note-item .ic{ flex:0 0 auto; font-size:16px; }
+  .note-item b{ color:var(--paint); }
+
+  footer{ text-align:center; padding:20px; color:var(--text-dim); font-size:12px; }
+  a{ color:var(--paint); }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="shield">台 7 · 北宜 · YILAN · TAOYUAN</span>
+  <h1>Route 7 Tour Portal</h1>
+  <p>Thu Jul 2 – Fri Jul 3, 2026 · Taipei → Yilan → Taipei → Taoyuan</p>
+</header>
+
+<!-- LIVE CONDITIONS -->
+<div class="live">
+  <div class="live-head">
+    <h2>🟢 Live conditions</h2>
+    <button onclick="loadAllWeather()">↻ Refresh</button>
+  </div>
+  <div class="wx-grid" id="wxGrid">
+    <div class="wx-card" id="wx-taipei"><div class="loc">Taipei</div><div class="temp">–</div><div class="rain">loading…</div></div>
+    <div class="wx-card" id="wx-pinglin"><div class="loc">Pinglin</div><div class="temp">–</div><div class="rain">loading…</div></div>
+    <div class="wx-card" id="wx-yilan"><div class="loc">Yilan</div><div class="temp">–</div><div class="rain">loading…</div></div>
+  </div>
+  <div class="wx-note" id="wxTimestamp">Fetching live forecast (Open-Meteo) — rain % is chance in the next 6 hours…</div>
+</div>
+
+<div class="quicklinks">
+  <a href="https://168.thb.gov.tw/thb168" target="_blank">🚧 Rd 7 status</a>
+  <a href="https://www.cwa.gov.tw/V8/C/W/County/County.html?CID=10002" target="_blank">🌦️ CWA Yilan</a>
+  <a href="https://www.cwa.gov.tw/V8/C/W/County/County.html?CID=63" target="_blank">🌦️ CWA Taipei</a>
+  <a href="tel:0399962683">📞 Rd office</a>
+</div>
+
+<div class="correction">
+  <b>Route correction:</b> Scooters can't use National Freeway 5 — Xueshan Tunnel bans all motorcycles/scooters regardless of engine size (only 國道3甲 allows 250cc+ bikes, not this one). Friday's return now goes via <b>Route 9 (北宜公路) through Pinglin</b> instead — shorter than Route 7, legal for your white plate, and gives you the extra stop you asked about.
+</div>
+
+<!-- DAY 1 -->
+<section class="day" id="day1">
+  <div class="day-head"><span class="num">01</span><span class="label">Thu Jul 2 — Taipei → Yilan</span></div>
+  <p class="day-sub">Route 7 (北橫) · full riding day · ~5–6hr moving time, avg 30–35km/h in the mountains · aim to clear Mingchi before 13:00–14:00 (storm window)</p>
+
+  <div class="day-controls">
+    <button onclick="quickAdjust(1,-15)">🏃 Running 15min early</button>
+    <button onclick="quickAdjust(1,15)">🐢 Running 15min late</button>
+    <button class="reset" onclick="resetDay(1)">↺ Reset day</button>
+  </div>
+
+  <div class="timeline" id="timeline-1"></div>
+</section>
+
+<!-- DAY 2 -->
+<section class="day" id="day2">
+  <div class="day-head"><span class="num">02</span><span class="label">Fri Jul 3 — Yilan → Pinglin → Taipei → Taoyuan</span></div>
+  <p class="day-sub">Return via Route 9 (北宜公路) — not Freeway 5, see correction above · ~1.5–2hr buffer before the 16:30 deadline</p>
+
+  <div class="day-controls">
+    <button onclick="quickAdjust(2,-15)">🏃 Running 15min early</button>
+    <button onclick="quickAdjust(2,15)">🐢 Running 15min late</button>
+    <button class="reset" onclick="resetDay(2)">↺ Reset day</button>
+  </div>
+
+  <div class="timeline" id="timeline-2"></div>
+</section>
+
+<!-- NOTES -->
+<div class="notes">
+  <h2>Good to know</h2>
+
+  <div class="note-item"><span class="ic">🪪</span><div><b>White plate scooter is fine on Route 7 and Route 9</b> — both are regular provincial highways (省道), no restriction. It's only expressways/national freeways (國道) that are off-limits, which is why Friday's return no longer uses Freeway 5.</div></div>
+
+  <div class="note-item"><span class="ic">🚧</span><div><b>Check road status before you leave both mornings.</b> Route 7 has recurring rockfall closures (Yingshi, Niudou, Minchi) after rain, plus a standing night closure on the Daman section (18:00–08:00). Live status: <a href="https://168.thb.gov.tw/thb168" target="_blank">168.thb.gov.tw</a></div></div>
+
+  <div class="note-item"><span class="ic">🌧️</span><div><b>Afternoon storms are the norm.</b> Typical summer pattern peaks early-mid afternoon. Aim to clear exposed mountain sections before 13:00–14:00 both days. Shelter points marked green in the timeline.</div></div>
+
+  <div class="note-item"><span class="ic">⚠️</span><div><b>Wet hairpins &gt; wet climbs.</b> If caught in rain, prioritize waiting it out over riding a hairpin descent wet — Thursday's 九彎十八拐 and Friday's Pinglin descent are both worth this caution.</div></div>
+
+  <div class="note-item"><span class="ic">🎒</span><div><b>Pack:</b> rain shell/poncho, anti-fog visor treatment, IDP + Singapore licence + passport, cash for rental deposit.</div></div>
+
+  <div class="note-item"><span class="ic">📞</span><div><b>Road office (rockfall/closure info):</b> <a href="tel:0399962683">03-996-2683</a></div></div>
+
+  <div class="note-item"><span class="ic">💾</span><div>Arrival times you tap below only persist while this page/tab stays open — reloading resets them to the planned schedule.</div></div>
+</div>
+
+<footer>Tap 📍 to navigate. Tap ✓ when you arrive to auto-adjust the rest of the day.</footer>
+
+<script>
+/* ---------- DATA ---------- */
+function t(h,m){ return h*60+m; }
+
+const days = {
+  1: {
+    offset: 0,
+    lastDone: -1,
+    stops: [
+      { id:'d1-0', base:t(7,0), title:'Depart Taipei', cls:'', desc:'Breakfast + gear check. Confirm IDP (motorcycle stamp), passport, cash for deposit.', map:null },
+      { id:'d1-1', base:t(7,30), title:'Daxi (大溪)', cls:'', desc:'Fuel up, coffee stop, last easy road before the climb.', map:'Daxi Old Street Taoyuan' },
+      { id:'d1-2', base:t(8,30), title:'Lalashan Nature Reserve', cls:'', desc:'1–1.5hr boardwalk loop through giant cypress. Protected reserve — drone restrictions apply.', map:'Lalashan Nature Reserve' },
+      { id:'d1-3', base:t(12,0), title:'Lunch — Fuxing / Lower Baling', cls:'rest', tag:'shelter option', desc:'Mountain-style local fare. Covered eateries — fallback if rain starts early.', map:'Fuxing District Taoyuan' },
+      { id:'d1-4', base:t(13,0), title:'Mingchi Forest Recreation Area', cls:'rest', tag:'shelter option', desc:'~1hr lakeside loop if open. Visitor center/lodge with cover — best fallback for an afternoon storm. Worth waiting 30–45min here rather than pushing through the hairpins wet.', map:'Mingchi Forest Recreation Area' },
+      { id:'d1-5', base:t(15,30), title:'九彎十八拐 hairpin descent', cls:'caution', tag:'caution', desc:'Steep hairpin drop into the Yilan plain (76–81K). Highest-risk section of the route, worse in rain — reduced visibility, wet camber.', map:null },
+      { id:'d1-6', base:t(17,0), title:'Hotel — No.96-6, Sec.2, Taiya Rd, Yilan', cls:'', desc:'Central Yilan City, walkable to Jimmy Park, Cultural & Creative Park, riverside park.', map:'No.96-6, Sec. 2, Taiya Rd, Yilan City, Yilan County 26741' },
+      { id:'d1-7', base:t(18,30), title:'Dinner — Dongmen Night Market', cls:'', desc:'東門夜市 — walkable from the hotel.', map:'Dongmen Night Market Yilan' },
+    ]
+  },
+  2: {
+    offset: 0,
+    lastDone: -1,
+    stops: [
+      { id:'d2-0', base:t(8,0), title:'Breakfast, checkout', cls:'', desc:'Yilan hotel.', map:null },
+      { id:'d2-1', base:t(8,30), title:'Depart via Route 9 (北宜公路)', cls:'', desc:'Toward Pinglin — NOT Freeway 5 (scooters banned from Xueshan Tunnel). Mountain road, similar pace to Route 7.', map:'Toucheng Yilan' },
+      { id:'d2-2', base:t(10,0), title:'Pinglin Old Street', cls:'rest', tag:'new stop', desc:'Tea-culture town — good break point and photo stop. Try a local tea or light snack before the final descent into Taipei.', map:'Pinglin Old Street New Taipei' },
+      { id:'d2-3', base:t(10,45), title:'Depart Pinglin toward Taipei', cls:'caution', tag:'caution', desc:'Descent into Xindian/Taipei has its own winding sections — same wet-hairpin caution as Thursday applies.', map:null },
+      { id:'d2-4', base:t(12,0), title:'Return scooter — near Taipei Main Station', cls:'', desc:'Bring rental agreement + ID. Check for scratches/fuel level before handoff.', map:'Taipei Main Station' },
+      { id:'d2-5', base:t(12,30), title:'Lunch near the station', cls:'', desc:'Buffer built in — no need to rush.', map:null },
+      { id:'d2-6', base:t(13,30), title:'Head to Taoyuan Airport', cls:'', desc:'Airport MRT or taxi, ~45min–1hr.', map:'Taoyuan International Airport' },
+      { id:'d2-7', base:t(14,30), title:'Arrive Taoyuan', cls:'', tag:'deadline', desc:'~1.5–2hr buffer before 16:30 pickup. Freshen up before you greet her.', map:null },
+    ]
+  }
+};
+
+/* ---------- RENDER ---------- */
+function fmt(mins){
+  mins = ((mins % 1440) + 1440) % 1440;
+  const h = Math.floor(mins/60), m = mins%60;
+  const ampm = h<12 ? 'AM' : 'PM';
+  let h12 = h%12; if(h12===0) h12=12;
+  return h12 + ':' + String(m).padStart(2,'0') + ' ' + ampm;
+}
+
+function renderDay(dayNum){
+  const day = days[dayNum];
+  const el = document.getElementById('timeline-'+dayNum);
+  el.innerHTML = '';
+  day.stops.forEach((s, idx) => {
+    const isDone = idx <= day.lastDone;
+    const displayed = idx > day.lastDone ? s.base + day.offset : s.actualTime ?? s.base;
+    const div = document.createElement('div');
+    div.className = 'stop ' + (s.cls||'') + (isDone ? ' done' : '');
+    let deltaHtml = '';
+    if(isDone && s.deltaMin !== undefined && s.deltaMin !== 0){
+      deltaHtml = `<span class="delta ${s.deltaMin>0?'late':'early'}">${s.deltaMin>0?'+':''}${s.deltaMin}min</span>`;
+    }
+    const tagHtml = s.tag ? `<span class="tag ${s.cls||'deadline'}">${s.tag}</span>` : '';
+    const mapBtn = s.map ? `<a class="maplink" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(s.map)}" target="_blank">📍 Navigate</a>` : '';
+    const arriveBtn = isDone
+      ? `<button class="arrive-btn" disabled>✓ Done ${fmt(s.actualTime)}</button>`
+      : `<button class="arrive-btn" onclick="markArrived(${dayNum}, ${idx})">✓ Mark arrived</button>`;
+    div.innerHTML = `
+      <div class="card">
+        <div class="time">${fmt(displayed)} ${deltaHtml}</div>
+        <h3>${s.title} ${tagHtml}</h3>
+        <p>${s.desc}</p>
+        <div class="row">${mapBtn}${arriveBtn}</div>
+      </div>`;
+    el.appendChild(div);
+  });
+}
+
+function markArrived(dayNum, idx){
+  const day = days[dayNum];
+  const now = new Date();
+  const nowMin = now.getHours()*60 + now.getMinutes();
+  const s = day.stops[idx];
+  const scheduled = s.base + day.offset;
+  const delta = nowMin - scheduled;
+  s.actualTime = nowMin;
+  s.deltaMin = delta;
+  day.offset = nowMin - s.base;
+  day.lastDone = idx;
+  renderDay(dayNum);
+}
+
+function quickAdjust(dayNum, mins){
+  const day = days[dayNum];
+  day.offset += mins;
+  renderDay(dayNum);
+}
+
+function resetDay(dayNum){
+  const day = days[dayNum];
+  day.offset = 0;
+  day.lastDone = -1;
+  day.stops.forEach(s => { delete s.actualTime; delete s.deltaMin; });
+  renderDay(dayNum);
+}
+
+renderDay(1);
+renderDay(2);
+
+/* ---------- LIVE WEATHER ---------- */
+const wxLocations = [
+  { id:'wx-taipei', name:'Taipei', lat:25.0478, lon:121.5170 },
+  { id:'wx-pinglin', name:'Pinglin', lat:24.9366, lon:121.7136 },
+  { id:'wx-yilan', name:'Yilan', lat:24.7021, lon:121.7378 },
+];
+
+function weatherIcon(code){
+  if(code===0) return '☀️';
+  if([1,2,3].includes(code)) return '⛅';
+  if([45,48].includes(code)) return '🌫️';
+  if([51,53,55,56,57].includes(code)) return '🌦️';
+  if([61,63,65,66,67,80,81,82].includes(code)) return '🌧️';
+  if([71,73,75,77,85,86].includes(code)) return '🌨️';
+  if([95,96,99].includes(code)) return '⛈️';
+  return '🌡️';
+}
+
+async function loadWeather(loc){
+  const el = document.getElementById(loc.id);
+  try{
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current=temperature_2m,precipitation,weather_code&hourly=precipitation_probability&timezone=Asia%2FTaipei&forecast_days=2`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const cur = data.current;
+    const nowIdx = data.hourly.time.findIndex(t => t === cur.time.slice(0,14)+'00' || t.startsWith(cur.time.slice(0,13)));
+    const startIdx = nowIdx >= 0 ? nowIdx : 0;
+    const next6 = data.hourly.precipitation_probability.slice(startIdx, startIdx+6);
+    const maxRain = next6.length ? Math.max(...next6) : 0;
+    const rainClass = maxRain>=60 ? 'high' : maxRain>=30 ? 'mod' : 'low';
+    el.innerHTML = `
+      <div class="loc">${loc.name}</div>
+      <div class="temp">${weatherIcon(cur.weather_code)} ${Math.round(cur.temperature_2m)}°C</div>
+      <div class="rain ${rainClass}">${maxRain}% rain (6h)</div>
+    `;
+  }catch(e){
+    el.innerHTML = `<div class="loc">${loc.name}</div><div class="temp">–</div><div class="rain">unavailable</div>`;
+  }
+}
+
+function loadAllWeather(){
+  document.getElementById('wxTimestamp').textContent = 'Updating…';
+  Promise.all(wxLocations.map(loadWeather)).then(()=>{
+    const now = new Date();
+    document.getElementById('wxTimestamp').textContent =
+      `Live via Open-Meteo · rain % = chance in next 6h · updated ${now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}`;
+  });
+}
+
+loadAllWeather();
+</script>
+
+</body>
+</html>
