@@ -158,6 +158,22 @@
     border-radius:8px;
   }
   .day-controls button.reset{ color:var(--text-dim); }
+  .day-status{ font-size:12px; color:var(--text-dim); margin:-8px 0 16px; }
+  .day-status.shifted{ color:var(--paint); }
+
+  .time-edit{
+    background:transparent;
+    border:none;
+    border-bottom:1px dashed var(--paint-dim);
+    color:var(--paint);
+    font-family:var(--font-display);
+    font-size:12px;
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+    padding:1px 2px;
+    width:92px;
+  }
+  .time-edit::-webkit-calendar-picker-indicator{ filter:invert(0.8) sepia(1) saturate(3) hue-rotate(2deg); }
 
   .timeline{ position:relative; padding-left:22px; border-left:2px solid var(--line); }
   .stop{ position:relative; margin-bottom:16px; }
@@ -256,6 +272,7 @@
     <button onclick="quickAdjust(1,15)">🐢 Running 15min late</button>
     <button class="reset" onclick="resetDay(1)">↺ Reset day</button>
   </div>
+  <div class="day-status" id="status-1"></div>
 
   <div class="timeline" id="timeline-1"></div>
 </section>
@@ -270,6 +287,7 @@
     <button onclick="quickAdjust(2,15)">🐢 Running 15min late</button>
     <button class="reset" onclick="resetDay(2)">↺ Reset day</button>
   </div>
+  <div class="day-status" id="status-2"></div>
 
   <div class="timeline" id="timeline-2"></div>
 </section>
@@ -339,6 +357,25 @@ function fmt(mins){
   return h12 + ':' + String(m).padStart(2,'0') + ' ' + ampm;
 }
 
+function toHHMM(mins){
+  mins = ((mins % 1440) + 1440) % 1440;
+  const h = Math.floor(mins/60), m = mins%60;
+  return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+}
+
+function updateStatus(dayNum){
+  const day = days[dayNum];
+  const el = document.getElementById('status-'+dayNum);
+  if(day.offset === 0){
+    el.textContent = 'On original schedule';
+    el.className = 'day-status';
+  } else {
+    const dir = day.offset > 0 ? 'behind' : 'ahead of';
+    el.textContent = `Schedule adjusted — currently ${Math.abs(day.offset)}min ${dir} plan (rest of day shifted)`;
+    el.className = 'day-status shifted';
+  }
+}
+
 function renderDay(dayNum){
   const day = days[dayNum];
   const el = document.getElementById('timeline-'+dayNum);
@@ -357,15 +394,28 @@ function renderDay(dayNum){
     const arriveBtn = isDone
       ? `<button class="arrive-btn" disabled>✓ Done ${fmt(s.actualTime)}</button>`
       : `<button class="arrive-btn" onclick="markArrived(${dayNum}, ${idx})">✓ Mark arrived</button>`;
+    const timeHtml = isDone
+      ? `${fmt(displayed)} ${deltaHtml}`
+      : `<input type="time" class="time-edit" value="${toHHMM(displayed)}" onchange="editTime(${dayNum}, ${idx}, this.value)">`;
     div.innerHTML = `
       <div class="card">
-        <div class="time">${fmt(displayed)} ${deltaHtml}</div>
+        <div class="time">${timeHtml}</div>
         <h3>${s.title} ${tagHtml}</h3>
         <p>${s.desc}</p>
         <div class="row">${mapBtn}${arriveBtn}</div>
       </div>`;
     el.appendChild(div);
   });
+  updateStatus(dayNum);
+}
+
+function editTime(dayNum, idx, val){
+  const day = days[dayNum];
+  const [hh, mm] = val.split(':').map(Number);
+  if(isNaN(hh) || isNaN(mm)) return;
+  const newMinutes = hh*60 + mm;
+  day.offset = newMinutes - day.stops[idx].base;
+  renderDay(dayNum);
 }
 
 function markArrived(dayNum, idx){
