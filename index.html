@@ -175,6 +175,18 @@
   }
   .time-edit::-webkit-calendar-picker-indicator{ filter:invert(0.8) sepia(1) saturate(3) hue-rotate(2deg); }
 
+  .dur-edit{
+    width:44px;
+    background:var(--asphalt);
+    border:1px solid var(--line);
+    border-radius:4px;
+    color:var(--paint);
+    font-size:12px;
+    text-align:center;
+    padding:2px 4px;
+    margin:0 3px;
+  }
+
   .timeline{ position:relative; padding-left:22px; border-left:2px solid var(--line); }
   .stop{ position:relative; margin-bottom:16px; }
   .stop::before{
@@ -201,6 +213,17 @@
   .card h3{ margin:2px 0 6px; font-size:16px; font-weight:600; }
   .card p{ margin:0 0 10px; font-size:13.5px; color:var(--text-dim); line-height:1.45; }
   .card p:last-of-type{ margin-bottom:0; }
+  .stay-line{
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+    color:var(--text-dim);
+    background:var(--asphalt-2);
+    border-radius:6px;
+    padding:6px 9px;
+    margin:8px 0;
+  }
+  .stay-line b{ color:var(--paint); font-weight:600; }
   .row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:4px; }
   .maplink{
     display:inline-flex; align-items:center; gap:6px;
@@ -348,6 +371,15 @@ const days = {
   }
 };
 
+// Initialize editable "gap" (minutes budgeted at this stop before the next one starts)
+Object.values(days).forEach(day => {
+  day.stops.forEach((s, idx) => {
+    const next = day.stops[idx+1];
+    s.gap = next ? next.base - s.base : 0;
+    s.origGap = s.gap;
+  });
+});
+
 /* ---------- RENDER ---------- */
 function fmt(mins){
   mins = ((mins % 1440) + 1440) % 1440;
@@ -363,15 +395,40 @@ function toHHMM(mins){
   return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
 }
 
+// Forward pass: done stops use their real arrival time; everything after
+// cascades from the previous stop's time + that stop's (editable) gap.
+function computeDisplayedTimes(day){
+  const n = day.stops.length;
+  const times = new Array(n);
+  for(let i=0;i<n;i++){
+    if(i <= day.lastDone){
+      times[i] = day.stops[i].actualTime;
+    } else if(i === 0){
+      times[i] = day.stops[0].base + day.offset;
+    } else {
+      times[i] = times[i-1] + day.stops[i-1].gap;
+    }
+  }
+  return times;
+}
+
 function updateStatus(dayNum){
   const day = days[dayNum];
   const el = document.getElementById('status-'+dayNum);
-  if(day.offset === 0){
+  const times = computeDisplayedTimes(day);
+  const nextIdx = day.lastDone + 1;
+  if(nextIdx >= day.stops.length){
+    el.textContent = 'All stops complete';
+    el.className = 'day-status';
+    return;
+  }
+  const drift = times[nextIdx] - day.stops[nextIdx].base;
+  if(drift === 0){
     el.textContent = 'On original schedule';
     el.className = 'day-status';
   } else {
-    const dir = day.offset > 0 ? 'behind' : 'ahead of';
-    el.textContent = `Schedule adjusted — currently ${Math.abs(day.offset)}min ${dir} plan (rest of day shifted)`;
+    const dir = drift > 0 ? 'behind' : 'ahead of';
+    el.textContent = `Currently ${Math.abs(drift)}min ${dir} plan (rest of day shifted)`;
     el.className = 'day-status shifted';
   }
 }
@@ -380,9 +437,12 @@ function renderDay(dayNum){
   const day = days[dayNum];
   const el = document.getElementById('timeline-'+dayNum);
   el.innerHTML = '';
+
+  const displayedTimes = computeDisplayedTimes(day);
+
   day.stops.forEach((s, idx) => {
     const isDone = idx <= day.lastDone;
-    const displayed = idx > day.lastDone ? s.base + day.offset : s.actualTime ?? s.base;
+    const displayed = displayedTimes[idx];
     const div = document.createElement('div');
     div.className = 'stop ' + (s.cls||'') + (isDone ? ' done' : '');
     let deltaHtml = '';
@@ -397,11 +457,24 @@ function renderDay(dayNum){
     const timeHtml = isDone
       ? `${fmt(displayed)} ${deltaHtml}`
       : `<input type="time" class="time-edit" value="${toHHMM(displayed)}" onchange="editTime(${dayNum}, ${idx}, this.value)">`;
+
+    let stayHtml = '';
+    if(idx < day.stops.length - 1){
+      const departBy = displayedTimes[idx+1];
+      stayHtml = `<div class="stay-line">
+        <span>⏱ budget <input type="number" class="dur-edit" min="0" step="5" value="${s.gap}" onchange="editDuration(${dayNum}, ${idx}, this.value)">min here</span>
+        <span>→ depart by <b>${fmt(departBy)}</b></span>
+      </div>`;
+    } else {
+      stayHtml = `<div class="stay-line"><span>🏁 last stop of the day</span><span></span></div>`;
+    }
+
     div.innerHTML = `
       <div class="card">
         <div class="time">${timeHtml}</div>
         <h3>${s.title} ${tagHtml}</h3>
         <p>${s.desc}</p>
+        ${stayHtml}
         <div class="row">${mapBtn}${arriveBtn}</div>
       </div>`;
     el.appendChild(div);
@@ -409,12 +482,28 @@ function renderDay(dayNum){
   updateStatus(dayNum);
 }
 
+// Editing a stop's absolute start time only adjusts the gap of the stop
+// immediately before it — so everything before stays put, everything after cascades.
 function editTime(dayNum, idx, val){
   const day = days[dayNum];
   const [hh, mm] = val.split(':').map(Number);
   if(isNaN(hh) || isNaN(mm)) return;
   const newMinutes = hh*60 + mm;
-  day.offset = newMinutes - day.stops[idx].base;
+  if(idx === 0){
+    day.offset = newMinutes - day.stops[0].base;
+  } else {
+    const times = computeDisplayedTimes(day);
+    day.stops[idx-1].gap = newMinutes - times[idx-1];
+  }
+  renderDay(dayNum);
+}
+
+// Editing the "budget ~Xmin here" field directly changes that stop's gap,
+// which automatically cascades to every later stop's depart-by / start time.
+function editDuration(dayNum, idx, val){
+  const mins = parseInt(val, 10);
+  if(isNaN(mins) || mins < 0) return;
+  days[dayNum].stops[idx].gap = mins;
   renderDay(dayNum);
 }
 
@@ -422,19 +511,22 @@ function markArrived(dayNum, idx){
   const day = days[dayNum];
   const now = new Date();
   const nowMin = now.getHours()*60 + now.getMinutes();
+  const times = computeDisplayedTimes(day);
   const s = day.stops[idx];
-  const scheduled = s.base + day.offset;
-  const delta = nowMin - scheduled;
+  const delta = nowMin - times[idx];
   s.actualTime = nowMin;
   s.deltaMin = delta;
-  day.offset = nowMin - s.base;
   day.lastDone = idx;
   renderDay(dayNum);
 }
 
 function quickAdjust(dayNum, mins){
   const day = days[dayNum];
-  day.offset += mins;
+  if(day.lastDone === -1){
+    day.offset += mins;
+  } else {
+    day.stops[day.lastDone].gap += mins;
+  }
   renderDay(dayNum);
 }
 
@@ -442,7 +534,7 @@ function resetDay(dayNum){
   const day = days[dayNum];
   day.offset = 0;
   day.lastDone = -1;
-  day.stops.forEach(s => { delete s.actualTime; delete s.deltaMin; });
+  day.stops.forEach(s => { delete s.actualTime; delete s.deltaMin; s.gap = s.origGap; });
   renderDay(dayNum);
 }
 
