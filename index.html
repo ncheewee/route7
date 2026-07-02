@@ -79,9 +79,11 @@
     background:none;
     border:1px solid var(--line);
     color:var(--text-dim);
-    font-size:12px;
-    padding:5px 10px;
-    border-radius:14px;
+    font-size:14px;
+    font-weight:600;
+    padding:8px 14px;
+    border-radius:16px;
+    min-height:40px;
   }
   .wx-grid{
     display:grid;
@@ -91,12 +93,13 @@
   .wx-card{
     background:var(--card);
     border-radius:9px;
-    padding:10px;
+    padding:8px 4px;
     text-align:center;
+    min-width:0;
   }
-  .wx-card .loc{ font-size:11.5px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px; }
-  .wx-card .temp{ font-family:var(--font-display); font-size:22px; margin:3px 0; }
-  .wx-card .rain{ font-size:12px; }
+  .wx-card .loc{ font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .wx-card .temp{ font-family:var(--font-display); font-size:19px; margin:3px 0; white-space:nowrap; }
+  .wx-card .rain{ font-size:11px; white-space:nowrap; }
   .wx-card .rain.high{ color:var(--warn); font-weight:700; }
   .wx-card .rain.mod{ color:var(--paint); font-weight:700; }
   .wx-card .rain.low{ color:var(--go); }
@@ -104,7 +107,7 @@
 
   .quicklinks{
     display:flex;
-    gap:8px;
+    gap:10px;
     padding:14px 20px;
     overflow-x:auto;
     background:var(--asphalt-2);
@@ -118,11 +121,13 @@
     background:var(--card);
     color:var(--text);
     text-decoration:none;
-    font-size:13px;
-    padding:9px 13px;
-    border-radius:20px;
+    font-size:15px;
+    font-weight:600;
+    padding:12px 16px;
+    border-radius:24px;
     border:1px solid var(--line);
     white-space:nowrap;
+    min-height:44px;
   }
 
   /* CORRECTION BANNER */
@@ -138,53 +143,55 @@
   .correction b{ color:var(--warn); }
 
   .day{ padding:26px 20px 6px; }
-  .day-head{ display:flex; align-items:baseline; gap:10px; margin-bottom:4px; }
-  .day-head .num{ font-family:var(--font-display); font-size:34px; color:var(--paint); line-height:1; }
-  .day-head .label{ font-family:var(--font-display); text-transform:uppercase; font-size:18px; letter-spacing:0.5px; }
+  .day-head{ display:flex; align-items:baseline; gap:10px; margin-bottom:4px; flex-wrap:wrap; }
+  .day-head .num{ font-family:var(--font-display); font-size:34px; color:var(--paint); line-height:1; flex:0 0 auto; }
+  .day-head .label{ font-family:var(--font-display); text-transform:uppercase; font-size:17px; letter-spacing:0.5px; line-height:1.3; }
   .day-sub{ color:var(--text-dim); font-size:13px; margin:0 0 14px; }
 
   .day-controls{
     display:flex;
-    gap:8px;
-    margin-bottom:16px;
+    gap:10px;
+    margin-bottom:14px;
   }
   .day-controls button{
     flex:1;
     background:var(--card);
     border:1px solid var(--line);
     color:var(--text);
-    font-size:12.5px;
-    padding:8px;
-    border-radius:8px;
+    font-size:15px;
+    font-weight:600;
+    padding:14px 6px;
+    border-radius:10px;
+    min-height:48px;
   }
   .day-controls button.reset{ color:var(--text-dim); }
-  .day-status{ font-size:12px; color:var(--text-dim); margin:-8px 0 16px; }
-  .day-status.shifted{ color:var(--paint); }
+  .day-status{ font-size:14px; color:var(--text-dim); margin:-6px 0 16px; }
+  .day-status.shifted{ color:var(--paint); font-weight:600; }
 
   .time-edit{
-    background:transparent;
-    border:none;
-    border-bottom:1px dashed var(--paint-dim);
+    background:var(--asphalt);
+    border:1px solid var(--paint-dim);
+    border-radius:8px;
     color:var(--paint);
     font-family:var(--font-display);
-    font-size:12px;
+    font-size:18px;
     letter-spacing:0.5px;
-    text-transform:uppercase;
-    padding:1px 2px;
-    width:92px;
+    padding:8px 10px;
+    min-height:40px;
   }
-  .time-edit::-webkit-calendar-picker-indicator{ filter:invert(0.8) sepia(1) saturate(3) hue-rotate(2deg); }
+  .time-edit::-webkit-calendar-picker-indicator{ filter:invert(0.8) sepia(1) saturate(3) hue-rotate(2deg); transform:scale(1.3); }
 
   .dur-edit{
-    width:44px;
+    width:64px;
     background:var(--asphalt);
     border:1px solid var(--line);
-    border-radius:4px;
+    border-radius:6px;
     color:var(--paint);
-    font-size:12px;
+    font-size:16px;
     text-align:center;
-    padding:2px 4px;
-    margin:0 3px;
+    padding:8px 4px;
+    margin:0 5px;
+    min-height:40px;
   }
 
   .timeline{ position:relative; padding-left:22px; border-left:2px solid var(--line); }
@@ -205,46 +212,47 @@
   .stop.done::before{ background:var(--go); border-color:var(--go); }
   .stop.done .card{ opacity:0.55; }
 
-  .card{ background:var(--card); border:1px solid var(--line); border-radius:10px; padding:13px 14px; }
-  .card .time{ font-family:var(--font-display); font-size:12px; color:var(--paint); letter-spacing:0.5px; text-transform:uppercase; }
-  .card .time .delta{ margin-left:6px; font-size:11px; }
+  .card{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; }
+  .card .time{ font-family:var(--font-display); font-size:20px; color:var(--paint); letter-spacing:0.5px; text-transform:uppercase; }
+  .card .time .delta{ margin-left:8px; font-size:14px; }
   .card .time .delta.late{ color:var(--warn); }
   .card .time .delta.early{ color:var(--go); }
-  .card h3{ margin:2px 0 6px; font-size:16px; font-weight:600; }
-  .card p{ margin:0 0 10px; font-size:13.5px; color:var(--text-dim); line-height:1.45; }
+  .card h3{ margin:6px 0 8px; font-size:19px; font-weight:700; }
+  .card p{ margin:0 0 10px; font-size:15px; color:var(--text-dim); line-height:1.5; }
   .card p:last-of-type{ margin-bottom:0; }
   .stay-line{
     display:flex;
     flex-direction:column;
-    gap:5px;
-    margin:8px 0;
+    gap:8px;
+    margin:10px 0;
   }
   .stay-row{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    font-size:12px;
+    font-size:15px;
     color:var(--text-dim);
     background:var(--asphalt-2);
-    border-radius:6px;
-    padding:6px 9px;
+    border-radius:8px;
+    padding:10px 12px;
+    min-height:44px;
   }
   .stay-row.travel{ background:transparent; border:1px dashed var(--line); color:var(--text-dim); }
   .stay-row i{ font-style:normal; opacity:0.7; }
-  .stay-row b{ color:var(--paint); font-weight:600; }
-  .row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:4px; }
+  .stay-row b{ color:var(--paint); font-weight:700; }
+  .row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:6px; }
   .maplink{
-    display:inline-flex; align-items:center; gap:6px;
+    display:flex; flex:1; min-width:130px; align-items:center; justify-content:center; gap:6px;
     background:var(--paint); color:#1a1a1a; text-decoration:none;
-    font-weight:700; font-size:13px; padding:9px 14px; border-radius:8px;
+    font-weight:700; font-size:16px; padding:14px; border-radius:10px; min-height:48px;
   }
   .arrive-btn{
-    display:inline-flex; align-items:center; gap:6px;
-    background:transparent; color:var(--go); border:1px solid var(--go);
-    font-weight:700; font-size:13px; padding:9px 14px; border-radius:8px;
+    display:flex; flex:1; min-width:130px; align-items:center; justify-content:center; gap:6px;
+    background:transparent; color:var(--go); border:2px solid var(--go);
+    font-weight:700; font-size:16px; padding:14px; border-radius:10px; min-height:48px;
   }
   .arrive-btn:disabled{ opacity:0.5; border-color:var(--text-dim); color:var(--text-dim); }
-  .tag{ display:inline-block; font-size:10.5px; text-transform:uppercase; letter-spacing:0.5px; padding:2px 7px; border-radius:4px; margin-left:6px; vertical-align:middle; }
+  .tag{ display:inline-block; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; padding:3px 8px; border-radius:5px; margin-left:6px; vertical-align:middle; white-space:nowrap; }
   .tag.caution{ background:rgba(226,87,76,0.18); color:var(--warn); }
   .tag.rest{ background:rgba(76,175,109,0.18); color:var(--go); }
   .tag.deadline{ background:rgba(242,183,5,0.18); color:var(--paint); }
@@ -283,10 +291,10 @@
 </div>
 
 <div class="quicklinks">
-  <a href="https://168.thb.gov.tw/thb168" target="_blank">🚧 Rd 7 status</a>
-  <a href="https://www.cwa.gov.tw/V8/C/W/County/County.html?CID=10002" target="_blank">🌦️ CWA Yilan</a>
-  <a href="https://www.cwa.gov.tw/V8/C/W/County/County.html?CID=63" target="_blank">🌦️ CWA Taipei</a>
-  <a href="tel:0399962683">📞 Rd office</a>
+  <a href="https://168.thb.gov.tw/thb168" target="_blank">🚧 Roads</a>
+  <a href="https://www.cwa.gov.tw/V8/C/W/County/County.html?CID=10002" target="_blank">🌦️ Yilan</a>
+  <a href="https://www.cwa.gov.tw/V8/C/W/County/County.html?CID=63" target="_blank">🌦️ Taipei</a>
+  <a href="tel:0399962683">📞 Call</a>
 </div>
 
 <div class="correction">
@@ -295,13 +303,13 @@
 
 <!-- DAY 1 -->
 <section class="day" id="day1">
-  <div class="day-head"><span class="num">01</span><span class="label">Thu Jul 2 — Taipei → Yilan</span></div>
+  <div class="day-head"><span class="num">01</span><span class="label">Thu — Taipei → Yilan</span></div>
   <p class="day-sub">Route 7 (北橫) · full riding day · ~5–6hr moving time, avg 30–35km/h in the mountains · aim to clear Mingchi before 13:00–14:00 (storm window)</p>
 
   <div class="day-controls">
-    <button onclick="quickAdjust(1,-15)">🏃 Running 15min early</button>
-    <button onclick="quickAdjust(1,15)">🐢 Running 15min late</button>
-    <button class="reset" onclick="resetDay(1)">↺ Reset day</button>
+    <button onclick="quickAdjust(1,-15)">🏃 −15m</button>
+    <button onclick="quickAdjust(1,15)">🐢 +15m</button>
+    <button class="reset" onclick="resetDay(1)">↺ Reset</button>
   </div>
   <div class="day-status" id="status-1"></div>
 
@@ -310,13 +318,13 @@
 
 <!-- DAY 2 -->
 <section class="day" id="day2">
-  <div class="day-head"><span class="num">02</span><span class="label">Fri Jul 3 — Yilan → Pinglin → Taipei → Taoyuan</span></div>
+  <div class="day-head"><span class="num">02</span><span class="label">Fri — Yilan → Taoyuan</span></div>
   <p class="day-sub">Return via Route 9 (北宜公路) — not Freeway 5, see correction above · ~1.5–2hr buffer before the 16:30 deadline</p>
 
   <div class="day-controls">
-    <button onclick="quickAdjust(2,-15)">🏃 Running 15min early</button>
-    <button onclick="quickAdjust(2,15)">🐢 Running 15min late</button>
-    <button class="reset" onclick="resetDay(2)">↺ Reset day</button>
+    <button onclick="quickAdjust(2,-15)">🏃 −15m</button>
+    <button onclick="quickAdjust(2,15)">🐢 +15m</button>
+    <button class="reset" onclick="resetDay(2)">↺ Reset</button>
   </div>
   <div class="day-status" id="status-2"></div>
 
@@ -433,17 +441,17 @@ function updateStatus(dayNum){
   const times = computeDisplayedTimes(day);
   const nextIdx = day.lastDone + 1;
   if(nextIdx >= day.stops.length){
-    el.textContent = 'All stops complete';
+    el.textContent = '✓ All done';
     el.className = 'day-status';
     return;
   }
   const drift = times[nextIdx] - day.stops[nextIdx].base;
   if(drift === 0){
-    el.textContent = 'On original schedule';
+    el.textContent = 'On schedule';
     el.className = 'day-status';
   } else {
-    const dir = drift > 0 ? 'behind' : 'ahead of';
-    el.textContent = `Currently ${Math.abs(drift)}min ${dir} plan (rest of day shifted)`;
+    const dir = drift > 0 ? 'behind' : 'ahead';
+    el.textContent = `${Math.abs(drift)}min ${dir}`;
     el.className = 'day-status shifted';
   }
 }
@@ -467,8 +475,8 @@ function renderDay(dayNum){
     const tagHtml = s.tag ? `<span class="tag ${s.cls||'deadline'}">${s.tag}</span>` : '';
     const mapBtn = s.map ? `<a class="maplink" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(s.map)}" target="_blank">📍 Navigate</a>` : '';
     const arriveBtn = isDone
-      ? `<button class="arrive-btn" disabled>✓ Done ${fmt(s.actualTime)}</button>`
-      : `<button class="arrive-btn" onclick="markArrived(${dayNum}, ${idx})">✓ Mark arrived</button>`;
+      ? `<button class="arrive-btn" disabled>✓ ${fmt(s.actualTime)}</button>`
+      : `<button class="arrive-btn" onclick="markArrived(${dayNum}, ${idx})">✓ Arrived</button>`;
     const timeHtml = isDone
       ? `${fmt(displayed)} ${deltaHtml}`
       : `<input type="time" class="time-edit" value="${toHHMM(displayed)}" onchange="editTime(${dayNum}, ${idx}, this.value)">`;
@@ -477,15 +485,13 @@ function renderDay(dayNum){
     if(idx < day.stops.length - 1){
       const departTime = displayed + s.activity;
       const arriveNext = displayedTimes[idx+1];
-      const activityRow = s.activity > 0 || s.travel === 0
-        ? `<div class="stay-row"><span>⏱ activity: <input type="number" class="dur-edit" min="0" step="5" value="${s.activity}" onchange="editActivity(${dayNum}, ${idx}, this.value)">min</span><span>depart by <b>${fmt(departTime)}</b></span></div>`
-        : `<div class="stay-row"><span>⏱ activity: <input type="number" class="dur-edit" min="0" step="5" value="${s.activity}" onchange="editActivity(${dayNum}, ${idx}, this.value)">min</span><span></span></div>`;
+      const activityRow = `<div class="stay-row"><span>⏱ <input type="number" class="dur-edit" min="0" step="5" value="${s.activity}" onchange="editActivity(${dayNum}, ${idx}, this.value)">min here</span><span>out <b>${fmt(departTime)}</b></span></div>`;
       const travelRow = s.travel > 0
-        ? `<div class="stay-row travel"><span>🛣 travel to next: ~${s.travel}min <i>(route est.)</i></span><span>arrive <b>${fmt(arriveNext)}</b></span></div>`
+        ? `<div class="stay-row travel"><span>🛣 ~${s.travel}min ride</span><span>in <b>${fmt(arriveNext)}</b></span></div>`
         : '';
       stayHtml = `<div class="stay-line">${activityRow}${travelRow}</div>`;
     } else {
-      stayHtml = `<div class="stay-line"><div class="stay-row"><span>🏁 last stop of the day</span><span></span></div></div>`;
+      stayHtml = `<div class="stay-line"><div class="stay-row"><span>🏁 Last stop</span><span></span></div></div>`;
     }
 
     div.innerHTML = `
@@ -595,7 +601,7 @@ async function loadWeather(loc){
     el.innerHTML = `
       <div class="loc">${loc.name}</div>
       <div class="temp">${weatherIcon(cur.weather_code)} ${Math.round(cur.temperature_2m)}°C</div>
-      <div class="rain ${rainClass}">${maxRain}% rain (6h)</div>
+      <div class="rain ${rainClass}">${maxRain}% · 6h</div>
     `;
   }catch(e){
     el.innerHTML = `<div class="loc">${loc.name}</div><div class="temp">–</div><div class="rain">unavailable</div>`;
