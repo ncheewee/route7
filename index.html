@@ -215,15 +215,23 @@
   .card p:last-of-type{ margin-bottom:0; }
   .stay-line{
     display:flex;
+    flex-direction:column;
+    gap:5px;
+    margin:8px 0;
+  }
+  .stay-row{
+    display:flex;
     justify-content:space-between;
+    align-items:center;
     font-size:12px;
     color:var(--text-dim);
     background:var(--asphalt-2);
     border-radius:6px;
     padding:6px 9px;
-    margin:8px 0;
   }
-  .stay-line b{ color:var(--paint); font-weight:600; }
+  .stay-row.travel{ background:transparent; border:1px dashed var(--line); color:var(--text-dim); }
+  .stay-row i{ font-style:normal; opacity:0.7; }
+  .stay-row b{ color:var(--paint); font-weight:600; }
   .row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:4px; }
   .maplink{
     display:inline-flex; align-items:center; gap:6px;
@@ -344,39 +352,45 @@ const days = {
   1: {
     offset: 0,
     lastDone: -1,
+    startBase: t(7,0),
     stops: [
-      { id:'d1-0', base:t(7,0), title:'Depart Taipei', cls:'', desc:'Breakfast + gear check. Confirm IDP (motorcycle stamp), passport, cash for deposit.', map:null },
-      { id:'d1-1', base:t(7,30), title:'Daxi (大溪)', cls:'', desc:'Fuel up, coffee stop, last easy road before the climb.', map:'Daxi Old Street Taoyuan' },
-      { id:'d1-2', base:t(8,30), title:'Lalashan Nature Reserve', cls:'', desc:'1–1.5hr boardwalk loop through giant cypress. Protected reserve — drone restrictions apply.', map:'Lalashan Nature Reserve' },
-      { id:'d1-3', base:t(12,0), title:'Lunch — Fuxing / Lower Baling', cls:'rest', tag:'shelter option', desc:'Mountain-style local fare. Covered eateries — fallback if rain starts early.', map:'Fuxing District Taoyuan' },
-      { id:'d1-4', base:t(13,0), title:'Mingchi Forest Recreation Area', cls:'rest', tag:'shelter option', desc:'~1hr lakeside loop if open. Visitor center/lodge with cover — best fallback for an afternoon storm. Worth waiting 30–45min here rather than pushing through the hairpins wet.', map:'Mingchi Forest Recreation Area' },
-      { id:'d1-5', base:t(15,30), title:'九彎十八拐 hairpin descent', cls:'caution', tag:'caution', desc:'Steep hairpin drop into the Yilan plain (76–81K). Highest-risk section of the route, worse in rain — reduced visibility, wet camber.', map:null },
-      { id:'d1-6', base:t(17,0), title:'Hotel — No.96-6, Sec.2, Taiya Rd, Yilan', cls:'', desc:'Central Yilan City, walkable to Jimmy Park, Cultural & Creative Park, riverside park.', map:'No.96-6, Sec. 2, Taiya Rd, Yilan City, Yilan County 26741' },
-      { id:'d1-7', base:t(18,30), title:'Dinner — Dongmen Night Market', cls:'', desc:'東門夜市 — walkable from the hotel.', map:'Dongmen Night Market Yilan' },
+      // activity = time spent doing the thing here (editable) · travel = estimated ride time to the NEXT stop (fixed, route-based)
+      { id:'d1-0', title:'Depart Taipei', cls:'', desc:'Breakfast + gear check. Confirm IDP (motorcycle stamp), passport, cash for deposit.', map:null, activity:0, travel:30 },
+      { id:'d1-1', title:'Daxi (大溪)', cls:'', desc:'Fuel up, coffee stop, last easy road before the climb.', map:'Daxi Old Street Taoyuan', activity:15, travel:45 },
+      { id:'d1-2', title:'Lalashan Nature Reserve', cls:'', desc:'Boardwalk loop through giant cypress. Protected reserve — drone restrictions apply.', map:'Lalashan Nature Reserve', activity:90, travel:120 },
+      { id:'d1-3', title:'Lunch — Fuxing / Lower Baling', cls:'rest', tag:'shelter option', desc:'Mountain-style local fare. Covered eateries — fallback if rain starts early.', map:'Fuxing District Taoyuan', activity:45, travel:15 },
+      { id:'d1-4', title:'Mingchi Forest Recreation Area', cls:'rest', tag:'shelter option', desc:'Lakeside loop if open. Visitor center/lodge with cover — best fallback for an afternoon storm.', map:'Mingchi Forest Recreation Area', activity:60, travel:90 },
+      { id:'d1-5', title:'九彎十八拐 hairpin descent', cls:'caution', tag:'caution', desc:'Steep hairpin drop into the Yilan plain (76–81K). Highest-risk section, worse in rain — reduced visibility, wet camber.', map:null, activity:0, travel:90 },
+      { id:'d1-6', title:'Hotel — No.96-6, Sec.2, Taiya Rd, Yilan', cls:'', desc:'Central Yilan City, walkable to Jimmy Park, Cultural & Creative Park, riverside park.', map:'No.96-6, Sec. 2, Taiya Rd, Yilan City, Yilan County 26741', activity:75, travel:15 },
+      { id:'d1-7', title:'Dinner — Dongmen Night Market', cls:'', desc:'東門夜市 — walkable from the hotel.', map:'Dongmen Night Market Yilan', activity:90, travel:0 },
     ]
   },
   2: {
     offset: 0,
     lastDone: -1,
+    startBase: t(8,0),
     stops: [
-      { id:'d2-0', base:t(8,0), title:'Breakfast, checkout', cls:'', desc:'Yilan hotel.', map:null },
-      { id:'d2-1', base:t(8,30), title:'Depart via Route 9 (北宜公路)', cls:'', desc:'Toward Pinglin — NOT Freeway 5 (scooters banned from Xueshan Tunnel). Mountain road, similar pace to Route 7.', map:'Toucheng Yilan' },
-      { id:'d2-2', base:t(10,0), title:'Pinglin Old Street', cls:'rest', tag:'new stop', desc:'Tea-culture town — good break point and photo stop. Try a local tea or light snack before the final descent into Taipei.', map:'Pinglin Old Street New Taipei' },
-      { id:'d2-3', base:t(10,45), title:'Depart Pinglin toward Taipei', cls:'caution', tag:'caution', desc:'Descent into Xindian/Taipei has its own winding sections — same wet-hairpin caution as Thursday applies.', map:null },
-      { id:'d2-4', base:t(12,0), title:'Return scooter — near Taipei Main Station', cls:'', desc:'Bring rental agreement + ID. Check for scratches/fuel level before handoff.', map:'Taipei Main Station' },
-      { id:'d2-5', base:t(12,30), title:'Lunch near the station', cls:'', desc:'Buffer built in — no need to rush.', map:null },
-      { id:'d2-6', base:t(13,30), title:'Head to Taoyuan Airport', cls:'', desc:'Airport MRT or taxi, ~45min–1hr.', map:'Taoyuan International Airport' },
-      { id:'d2-7', base:t(14,30), title:'Arrive Taoyuan', cls:'', tag:'deadline', desc:'~1.5–2hr buffer before 16:30 pickup. Freshen up before you greet her.', map:null },
+      { id:'d2-0', title:'Breakfast, checkout', cls:'', desc:'Yilan hotel.', map:null, activity:30, travel:0 },
+      { id:'d2-1', title:'Depart via Route 9 (北宜公路)', cls:'', desc:'Toward Pinglin — NOT Freeway 5 (scooters banned from Xueshan Tunnel). Mountain road, similar pace to Route 7.', map:'Toucheng Yilan', activity:0, travel:90 },
+      { id:'d2-2', title:'Pinglin Old Street', cls:'rest', tag:'new stop', desc:'Tea-culture town — good break point and photo stop.', map:'Pinglin Old Street New Taipei', activity:45, travel:0 },
+      { id:'d2-3', title:'Depart Pinglin toward Taipei', cls:'caution', tag:'caution', desc:'Descent into Xindian/Taipei has its own winding sections — same wet-hairpin caution as Thursday applies.', map:null, activity:0, travel:75 },
+      { id:'d2-4', title:'Return scooter — near Taipei Main Station', cls:'', desc:'Bring rental agreement + ID. Check for scratches/fuel level before handoff.', map:'Taipei Main Station', activity:30, travel:0 },
+      { id:'d2-5', title:'Lunch near the station', cls:'', desc:'Buffer built in — no need to rush.', map:null, activity:60, travel:0 },
+      { id:'d2-6', title:'Head to Taoyuan Airport', cls:'', desc:'Airport MRT or taxi.', map:'Taoyuan International Airport', activity:0, travel:60 },
+      { id:'d2-7', title:'Arrive Taoyuan', cls:'', tag:'deadline', desc:'Buffer before 16:30 pickup. Freshen up before you greet her.', map:null, activity:0, travel:0 },
     ]
   }
 };
 
-// Initialize editable "gap" (minutes budgeted at this stop before the next one starts)
+// Compute each stop's original scheduled arrival time (base) by cumulatively summing
+// activity + travel from the day's start, and snapshot originals for reset.
 Object.values(days).forEach(day => {
-  day.stops.forEach((s, idx) => {
-    const next = day.stops[idx+1];
-    s.gap = next ? next.base - s.base : 0;
-    s.origGap = s.gap;
+  let running = day.startBase;
+  day.stops.forEach(s => {
+    s.base = running;
+    s.origActivity = s.activity;
+    s.origTravel = s.travel;
+    running += s.activity + s.travel;
   });
 });
 
@@ -396,7 +410,7 @@ function toHHMM(mins){
 }
 
 // Forward pass: done stops use their real arrival time; everything after
-// cascades from the previous stop's time + that stop's (editable) gap.
+// cascades from the previous stop's time + that stop's activity + travel.
 function computeDisplayedTimes(day){
   const n = day.stops.length;
   const times = new Array(n);
@@ -404,9 +418,10 @@ function computeDisplayedTimes(day){
     if(i <= day.lastDone){
       times[i] = day.stops[i].actualTime;
     } else if(i === 0){
-      times[i] = day.stops[0].base + day.offset;
+      times[i] = day.startBase + day.offset;
     } else {
-      times[i] = times[i-1] + day.stops[i-1].gap;
+      const prev = day.stops[i-1];
+      times[i] = times[i-1] + prev.activity + prev.travel;
     }
   }
   return times;
@@ -460,13 +475,17 @@ function renderDay(dayNum){
 
     let stayHtml = '';
     if(idx < day.stops.length - 1){
-      const departBy = displayedTimes[idx+1];
-      stayHtml = `<div class="stay-line">
-        <span>⏱ budget <input type="number" class="dur-edit" min="0" step="5" value="${s.gap}" onchange="editDuration(${dayNum}, ${idx}, this.value)">min here</span>
-        <span>→ depart by <b>${fmt(departBy)}</b></span>
-      </div>`;
+      const departTime = displayed + s.activity;
+      const arriveNext = displayedTimes[idx+1];
+      const activityRow = s.activity > 0 || s.travel === 0
+        ? `<div class="stay-row"><span>⏱ activity: <input type="number" class="dur-edit" min="0" step="5" value="${s.activity}" onchange="editActivity(${dayNum}, ${idx}, this.value)">min</span><span>depart by <b>${fmt(departTime)}</b></span></div>`
+        : `<div class="stay-row"><span>⏱ activity: <input type="number" class="dur-edit" min="0" step="5" value="${s.activity}" onchange="editActivity(${dayNum}, ${idx}, this.value)">min</span><span></span></div>`;
+      const travelRow = s.travel > 0
+        ? `<div class="stay-row travel"><span>🛣 travel to next: ~${s.travel}min <i>(route est.)</i></span><span>arrive <b>${fmt(arriveNext)}</b></span></div>`
+        : '';
+      stayHtml = `<div class="stay-line">${activityRow}${travelRow}</div>`;
     } else {
-      stayHtml = `<div class="stay-line"><span>🏁 last stop of the day</span><span></span></div>`;
+      stayHtml = `<div class="stay-line"><div class="stay-row"><span>🏁 last stop of the day</span><span></span></div></div>`;
     }
 
     div.innerHTML = `
@@ -482,28 +501,29 @@ function renderDay(dayNum){
   updateStatus(dayNum);
 }
 
-// Editing a stop's absolute start time only adjusts the gap of the stop
-// immediately before it — so everything before stays put, everything after cascades.
+// Editing a stop's absolute start time adjusts the TRAVEL time of the stop before it
+// (travel is the naturally variable "how long did it actually take to get here" figure).
 function editTime(dayNum, idx, val){
   const day = days[dayNum];
   const [hh, mm] = val.split(':').map(Number);
   if(isNaN(hh) || isNaN(mm)) return;
   const newMinutes = hh*60 + mm;
   if(idx === 0){
-    day.offset = newMinutes - day.stops[0].base;
+    day.offset = newMinutes - day.startBase;
   } else {
     const times = computeDisplayedTimes(day);
-    day.stops[idx-1].gap = newMinutes - times[idx-1];
+    const prev = day.stops[idx-1];
+    prev.travel = Math.max(0, newMinutes - times[idx-1] - prev.activity);
   }
   renderDay(dayNum);
 }
 
-// Editing the "budget ~Xmin here" field directly changes that stop's gap,
-// which automatically cascades to every later stop's depart-by / start time.
-function editDuration(dayNum, idx, val){
+// Editing "activity" time directly changes how long you plan to spend at that stop —
+// cascades to every later stop automatically. Travel time is never user-edited here.
+function editActivity(dayNum, idx, val){
   const mins = parseInt(val, 10);
   if(isNaN(mins) || mins < 0) return;
-  days[dayNum].stops[idx].gap = mins;
+  days[dayNum].stops[idx].activity = mins;
   renderDay(dayNum);
 }
 
@@ -525,7 +545,8 @@ function quickAdjust(dayNum, mins){
   if(day.lastDone === -1){
     day.offset += mins;
   } else {
-    day.stops[day.lastDone].gap += mins;
+    const s = day.stops[day.lastDone];
+    s.travel = Math.max(0, s.travel + mins);
   }
   renderDay(dayNum);
 }
@@ -534,7 +555,7 @@ function resetDay(dayNum){
   const day = days[dayNum];
   day.offset = 0;
   day.lastDone = -1;
-  day.stops.forEach(s => { delete s.actualTime; delete s.deltaMin; s.gap = s.origGap; });
+  day.stops.forEach(s => { delete s.actualTime; delete s.deltaMin; s.activity = s.origActivity; s.travel = s.origTravel; });
   renderDay(dayNum);
 }
 
